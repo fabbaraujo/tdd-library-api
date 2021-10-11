@@ -119,6 +119,34 @@ class BookServiceTest {
         Mockito.verify(repository, Mockito.never()).delete(book);
     }
 
+    @Test
+    @DisplayName("Deve atualizar um livro.")
+    void updateBookTest() {
+        long id = 1L;
+        Book updatingBook = createValidBook();
+        Book updatedBook = createValidBook();
+        updatingBook.setId(id);
+        updatedBook.setId(id);
+        Mockito.when(repository.save(updatingBook)).thenReturn(updatedBook);
+
+        Book book = service.update(updatingBook);
+
+        assertThat(book.getId()).isEqualTo(updatedBook.getId());
+        assertThat(book.getIsbn()).isEqualTo(updatedBook.getIsbn());
+        assertThat(book.getAuthor()).isEqualTo(updatedBook.getAuthor());
+        assertThat(book.getTitle()).isEqualTo(updatedBook.getTitle());
+    }
+
+    @Test
+    @DisplayName("Deve ocorrer erro ao tentar atualizar um livro inexistente.")
+    void updateInvalidBookTest() {
+        Book book = new Book();
+
+        assertThrows(IllegalArgumentException.class, () ->  service.update(book));
+
+        Mockito.verify(repository, Mockito.never()).save(book);
+    }
+
     private Book createValidBook() {
         return Book.builder()
                 .isbn("123")
