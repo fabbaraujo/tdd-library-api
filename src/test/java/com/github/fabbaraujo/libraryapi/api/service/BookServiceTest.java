@@ -1,10 +1,10 @@
 package com.github.fabbaraujo.libraryapi.api.service;
 
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
-import com.github.fabbaraujo.libraryapi.model.repository.BookRepository;
-import com.github.fabbaraujo.libraryapi.service.impl.BookServiceImpl;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
+import com.github.fabbaraujo.libraryapi.model.repository.BookRepository;
 import com.github.fabbaraujo.libraryapi.service.BookService;
+import com.github.fabbaraujo.libraryapi.service.impl.BookServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.*;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -104,7 +106,7 @@ class BookServiceTest {
         Book book = createValidBook();
         book.setId(1L);
 
-        assertDoesNotThrow(() ->  service.delete(book));
+        assertDoesNotThrow(() -> service.delete(book));
 
         Mockito.verify(repository, Mockito.times(1)).delete(book);
     }
@@ -114,7 +116,7 @@ class BookServiceTest {
     void deleteInvalidBookTest() {
         Book book = new Book();
 
-        assertThrows(IllegalArgumentException.class, () ->  service.delete(book));
+        assertThrows(IllegalArgumentException.class, () -> service.delete(book));
 
         Mockito.verify(repository, Mockito.never()).delete(book);
     }
@@ -142,9 +144,26 @@ class BookServiceTest {
     void updateInvalidBookTest() {
         Book book = new Book();
 
-        assertThrows(IllegalArgumentException.class, () ->  service.update(book));
+        assertThrows(IllegalArgumentException.class, () -> service.update(book));
 
         Mockito.verify(repository, Mockito.never()).save(book);
+    }
+
+    @Test
+    @DisplayName("Deve filtrar livros de acordo com as propriedades.")
+    void findBookTest() {
+        Book book = createValidBook();
+        PageRequest pageRequest = PageRequest.of(0, 10);
+        List<Book> lista = List.of(book);
+        Page<Book> page = new PageImpl<>(lista, pageRequest, 1);
+        Mockito.when(repository.findAll(Mockito.any(Example.class), Mockito.any(Pageable.class))).thenReturn(page);
+
+        Page<Book> result = service.find(book, pageRequest);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent()).isEqualTo(lista);
+        assertThat(result.getPageable().getPageNumber()).isZero();
+        assertThat(result.getPageable().getPageSize()).isEqualTo(10);
     }
 
     private Book createValidBook() {
