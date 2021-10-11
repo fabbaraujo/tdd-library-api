@@ -7,6 +7,9 @@ import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -67,6 +72,17 @@ public class BookController {
                     return mapper.map(book, BookResponse.class);
                 })
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping
+    public Page<BookResponse> find(BookRequest request, Pageable pageRequest) {
+        Book filter = mapper.map(request, Book.class);
+        Page<Book> result = service.find(filter, pageRequest);
+
+        List<BookResponse> list = result.getContent().stream()
+                .map(entity -> mapper.map(entity, BookResponse.class)).toList();
+
+        return new PageImpl<>(list, pageRequest, result.getTotalElements());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
