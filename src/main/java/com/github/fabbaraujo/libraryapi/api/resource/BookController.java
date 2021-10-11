@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.github.fabbaraujo.libraryapi.api.exception.ApiErrors;
 import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
+import com.github.fabbaraujo.libraryapi.api.response.BookResponse;
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
@@ -10,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -33,6 +35,14 @@ public class BookController {
         entity = service.save(entity);
 
         return mapper.map(entity, BookRequest.class);
+    }
+
+    @GetMapping("/{id}")
+    public BookResponse getBookById(@PathVariable Long id) {
+        return service
+                .getById(id)
+                .map(book -> mapper.map(book, BookResponse.class))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
