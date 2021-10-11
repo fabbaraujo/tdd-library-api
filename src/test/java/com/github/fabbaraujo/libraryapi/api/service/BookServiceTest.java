@@ -18,6 +18,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -52,14 +54,6 @@ class BookServiceTest {
         assertThat(savedBook.getIsbn()).isEqualTo("123");
         assertThat(savedBook.getTitle()).isEqualTo("As aventuras");
         assertThat(savedBook.getAuthor()).isEqualTo("Fulano");
-    }
-
-    private Book createValidBook() {
-        return Book.builder()
-                .isbn("123")
-                .author("Fulano")
-                .title("As aventuras")
-                .build();
     }
 
     @Test
@@ -102,5 +96,34 @@ class BookServiceTest {
         Optional<Book> foundBook = service.getById(id);
 
         assertThat(foundBook).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Deve deletar um livro.")
+    void deleteBookTest() {
+        Book book = createValidBook();
+        book.setId(1L);
+
+        assertDoesNotThrow(() ->  service.delete(book));
+
+        Mockito.verify(repository, Mockito.times(1)).delete(book);
+    }
+
+    @Test
+    @DisplayName("Deve ocorrer erro ao tentar deletar um livro inexistente.")
+    void deleteInvalidBookTest() {
+        Book book = new Book();
+
+        assertThrows(IllegalArgumentException.class, () ->  service.delete(book));
+
+        Mockito.verify(repository, Mockito.never()).delete(book);
+    }
+
+    private Book createValidBook() {
+        return Book.builder()
+                .isbn("123")
+                .author("Fulano")
+                .title("As aventuras")
+                .build();
     }
 }
