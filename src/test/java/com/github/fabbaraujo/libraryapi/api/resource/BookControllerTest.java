@@ -174,6 +174,61 @@ class BookControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Deve atualizar um livro com sucesso.")
+    void updateBookTest() throws Exception {
+
+        Long id = 1L;
+        String json = new ObjectMapper().writeValueAsString(createNewBookRequest());
+        Book updatingBook = Book.builder()
+                .id(id)
+                .title("some title")
+                .author("some author")
+                .isbn("321")
+                .build();
+        Book updatedBook = Book.builder()
+                .id(id)
+                .author("Autor")
+                .title("Meu Livro")
+                .isbn("321")
+                .build();
+        BDDMockito.given(service.getById(id))
+                .willReturn(Optional.of(updatingBook));
+        BDDMockito.given(service.update(updatingBook))
+                .willReturn(updatedBook);
+
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(BOOK_API.concat("/").concat(id.toString()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("title").value(createNewBookRequest().getTitle()))
+                .andExpect(jsonPath("author").value(createNewBookRequest().getAuthor()))
+                .andExpect(jsonPath("isbn").value("321"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 ao tentar atualizar um livro inexistente.")
+    void updateInexistentBookTest() throws Exception {
+
+        String json = new ObjectMapper().writeValueAsString(createNewBookRequest());
+        BDDMockito.given(service.getById(Mockito.anyLong()))
+                .willReturn(Optional.empty());
+
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(BOOK_API.concat("/").concat("1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(status().isNotFound());
+    }
+
     private BookRequest createNewBookRequest() {
         return BookRequest.builder()
                 .author("Autor")
