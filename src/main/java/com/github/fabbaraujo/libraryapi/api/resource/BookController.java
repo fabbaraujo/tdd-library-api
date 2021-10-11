@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.github.fabbaraujo.libraryapi.api.exception.ApiErrors;
 import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
+import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
@@ -40,5 +41,11 @@ public class BookController {
         BindingResult bindResult = exception.getBindingResult();
 
         return new ApiErrors(bindResult);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiErrors handleBusinessException(BusinessException exception) {
+        return new ApiErrors(exception);
     }
 }

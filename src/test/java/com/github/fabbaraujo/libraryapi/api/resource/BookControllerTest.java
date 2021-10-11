@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
+import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.junit.jupiter.api.DisplayName;
@@ -42,11 +43,7 @@ class BookControllerTest {
     @DisplayName("Deve criar um livro com sucesso.")
     void createBookTest() throws Exception {
 
-        BookRequest requestBook = BookRequest.builder()
-                .author("Autor")
-                .title("Meu Livro")
-                .isbn("123")
-                .build();
+        BookRequest requestBook = createNewBookRequest();
         Book savedBook = Book.builder()
                 .id(10L)
                 .author("Autor")
@@ -72,6 +69,14 @@ class BookControllerTest {
                 .andExpect(jsonPath("isbn").value(requestBook.getIsbn()));
     }
 
+    private BookRequest createNewBookRequest() {
+        return BookRequest.builder()
+                .author("Autor")
+                .title("Meu Livro")
+                .isbn("123")
+                .build();
+    }
+
     @Test
     @DisplayName("Deve lançar erro de validação quando não houver dados suficientes para criação do livro.")
     void createInvalidBookTest() throws Exception {
@@ -86,5 +91,27 @@ class BookControllerTest {
         mvc.perform(request)
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", hasSize(3)));
+    }
+
+    @Test
+    @DisplayName("Deve lançar erro ao tentar cadastrar um livro com isbn já utilizado por outro.")
+    void createBookWithDuplicateIsbn() throws Exception {
+
+        BookRequest requestBook = createNewBookRequest();
+        String message = "Isbn já cadastrado.";
+        String json = new ObjectMapper().writeValueAsString(requestBook);
+        BDDMockito.given(service.save(Mockito.any(Book.class)))
+                .willThrow(new BusinessException(message));
+
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(BOOK_API)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", hasSize(1)))
+                .andExpect(jsonPath("errors[0]").value(message));
     }
 }
