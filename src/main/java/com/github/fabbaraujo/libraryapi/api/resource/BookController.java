@@ -1,6 +1,6 @@
 package com.github.fabbaraujo.libraryapi.api.resource;
 
-import com.github.fabbaraujo.libraryapi.api.dto.BookDTO;
+import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
@@ -21,11 +21,11 @@ public class BookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookDTO create(@RequestBody BookDTO dto) {
-        Book entity = mapper.map(dto, Book.class);
+    public BookRequest create(@RequestBody BookRequest request) {
+        Book entity = mapper.map(request, Book.class);
 
         entity = service.save(entity);
 
-        return mapper.map(entity, BookDTO.class);
+        return mapper.map(entity, BookRequest.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.github.fabbaraujo.libraryapi.api.dto;
+package com.github.fabbaraujo.libraryapi.api.request;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookDTO {
+public class BookRequest {
 
     private Long id;
     private String title;

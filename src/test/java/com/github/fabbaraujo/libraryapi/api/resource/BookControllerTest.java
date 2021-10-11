@@ -1,8 +1,7 @@
 package com.github.fabbaraujo.libraryapi.api.resource;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.fabbaraujo.libraryapi.api.dto.BookDTO;
+import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @WebMvcTest
 @AutoConfigureMockMvc
-public class BookControllerTest {
+class BookControllerTest {
 
     static String BOOK_API = "/api/books";
 
@@ -43,7 +41,7 @@ public class BookControllerTest {
     @DisplayName("Deve criar um livro com sucesso.")
     void createBookTest() throws Exception {
 
-        BookDTO dto = BookDTO.builder()
+        BookRequest requestBook = BookRequest.builder()
                 .author("Autor")
                 .title("Meu Livro")
                 .isbn("123")
@@ -56,7 +54,7 @@ public class BookControllerTest {
                 .build();
 
         BDDMockito.given(service.save(Mockito.any(Book.class))).willReturn(savedBook);
-        String json = new ObjectMapper().writeValueAsString(dto);
+        String json = new ObjectMapper().writeValueAsString(requestBook);
 
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .post(BOOK_API)
@@ -68,9 +66,9 @@ public class BookControllerTest {
                 .perform(request)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("id").isNotEmpty())
-                .andExpect(jsonPath("title").value(dto.getTitle()))
-                .andExpect(jsonPath("author").value(dto.getAuthor()))
-                .andExpect(jsonPath("isbn").value(dto.getIsbn()));
+                .andExpect(jsonPath("title").value(requestBook.getTitle()))
+                .andExpect(jsonPath("author").value(requestBook.getAuthor()))
+                .andExpect(jsonPath("isbn").value(requestBook.getIsbn()));
     }
 
     @Test
