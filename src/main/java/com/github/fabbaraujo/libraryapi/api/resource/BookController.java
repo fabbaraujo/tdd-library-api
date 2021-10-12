@@ -1,9 +1,7 @@
 package com.github.fabbaraujo.libraryapi.api.resource;
 
-import com.github.fabbaraujo.libraryapi.api.exception.ApiErrors;
 import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
 import com.github.fabbaraujo.libraryapi.api.response.BookResponse;
-import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
@@ -11,14 +9,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -83,19 +78,5 @@ public class BookController {
                 .map(entity -> mapper.map(entity, BookResponse.class)).toList();
 
         return new PageImpl<>(list, pageRequest, result.getTotalElements());
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleValidationExceptions(MethodArgumentNotValidException exception) {
-        BindingResult bindResult = exception.getBindingResult();
-
-        return new ApiErrors(bindResult);
-    }
-
-    @ExceptionHandler(BusinessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiErrors handleBusinessException(BusinessException exception) {
-        return new ApiErrors(exception);
     }
 }
