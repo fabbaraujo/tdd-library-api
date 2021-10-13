@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fabbaraujo.libraryapi.api.request.LoanRequest;
+import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
@@ -97,5 +98,38 @@ class LoanControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", Matchers.hasSize(1)))
                 .andExpect(jsonPath("errors[0]").value("Book not found for passed isbn."));
+    }
+
+    @Test
+    @DisplayName("Deve retornar erro ao tentar fazer empréstimo de um livro emprestado.")
+    void loanedBookErrorOnCreateLoanTest() throws Exception {
+        LoanRequest requestBody = LoanRequest.builder()
+                .isbn("123")
+                .customer("Fulano")
+                .build();
+        String json = new ObjectMapper().writeValueAsString(requestBody);
+        Book book = Book.builder()
+                .id(1L)
+                .isbn("123")
+                .build();
+        BDDMockito.given(bookService.getBookByIsbn("123")).willReturn(Optional.of(book));
+        Loan loan = Loan.builder()
+                .id(1L)
+                .customer("Fulano")
+                .book(book)
+                .loanDate(LocalDate.now())
+                .build();
+        BDDMockito.given(loanService.save(Mockito.any(Loan.class))).willThrow(new BusinessException("Book already loaned."));
+
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post(LOAN_API)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("errors", Matchers.hasSize(1)))
+                .andExpect(jsonPath("errors[0]").value("Book already loaned."));
     }
 }
