@@ -6,7 +6,7 @@ import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
-import com.github.fabbaraujo.libraryapi.service.LoanSerivce;
+import com.github.fabbaraujo.libraryapi.service.LoanService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ class LoanControllerTest {
     private BookService bookService;
 
     @MockBean
-    private LoanSerivce loanService;
+    private LoanService loanService;
 
     @Test
     @DisplayName("Deve realizar um empréstimo.")

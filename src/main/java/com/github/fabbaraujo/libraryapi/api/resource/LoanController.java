@@ -4,7 +4,7 @@ import com.github.fabbaraujo.libraryapi.api.request.LoanRequest;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
-import com.github.fabbaraujo.libraryapi.service.LoanSerivce;
+import com.github.fabbaraujo.libraryapi.service.LoanService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class LoanController {
 
-    private final LoanSerivce loanSerivce;
+    private final LoanService loanService;
     private final BookService bookService;
 
     @PostMapping
@@ -31,7 +31,7 @@ public class LoanController {
                 .loanDate(LocalDate.now())
                 .build();
 
-        entity = loanSerivce.save(entity);
+        entity = loanService.save(entity);
         return entity.getId();
     }
 }

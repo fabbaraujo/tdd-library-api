@@ -1,9 +1,8 @@
-package com.github.fabbaraujo.libraryapi.api.service;
+package com.github.fabbaraujo.libraryapi.service;
 
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.repository.BookRepository;
-import com.github.fabbaraujo.libraryapi.service.BookService;
 import com.github.fabbaraujo.libraryapi.service.impl.BookServiceImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
