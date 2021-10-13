@@ -113,12 +113,6 @@ class LoanControllerTest {
                 .isbn("123")
                 .build();
         BDDMockito.given(bookService.getBookByIsbn("123")).willReturn(Optional.of(book));
-        Loan loan = Loan.builder()
-                .id(1L)
-                .customer("Fulano")
-                .book(book)
-                .loanDate(LocalDate.now())
-                .build();
         BDDMockito.given(loanService.save(Mockito.any(Loan.class))).willThrow(new BusinessException("Book already loaned."));
 
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
