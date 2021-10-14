@@ -1,6 +1,7 @@
 package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.github.fabbaraujo.libraryapi.api.request.LoanRequest;
+import com.github.fabbaraujo.libraryapi.api.request.ReturnedLoanRequest;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
@@ -33,5 +34,14 @@ public class LoanController {
 
         entity = loanService.save(entity);
         return entity.getId();
+    }
+
+    @PatchMapping("/{id}")
+    public void returnBook(@PathVariable Long id, @RequestBody ReturnedLoanRequest request) {
+        Loan loan = loanService.getById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        loan.setReturned(request.getReturned());
+
+        loanService.update(loan);
     }
 }

@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fabbaraujo.libraryapi.api.request.LoanRequest;
+import com.github.fabbaraujo.libraryapi.api.request.ReturnedLoanRequest;
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
@@ -125,5 +126,27 @@ class LoanControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("errors", Matchers.hasSize(1)))
                 .andExpect(jsonPath("errors[0]").value("Book already loaned."));
+    }
+
+    @Test
+    @DisplayName("Deve retornar um livro.")
+    void returnBookTest() throws Exception {
+        ReturnedLoanRequest requestBody = ReturnedLoanRequest.builder().returned(true).build();
+        String json = new ObjectMapper().writeValueAsString(requestBody);
+        Loan loan = Loan.builder()
+                .id(1L)
+                .build();
+        BDDMockito.given(loanService.getById(Mockito.anyLong())).willReturn(Optional.of(loan));
+
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .patch(LOAN_API.concat("/1"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mvc.perform(request)
+                .andExpect(status().isOk());
+
+        Mockito.verify(loanService, Mockito.times(1)).update(loan);
     }
 }
