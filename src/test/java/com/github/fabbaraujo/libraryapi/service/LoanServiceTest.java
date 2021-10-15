@@ -14,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
@@ -80,5 +81,48 @@ class LoanServiceTest {
 
         assertThat(exception).isInstanceOf(BusinessException.class).hasMessage("Book already loaned.");
         verify(repository, never()).save(savingLoan);
+    }
+
+    @Test
+    @DisplayName("Deve obter as informações de um empréstimo pelo id.")
+    void getLoanDetailsTest() {
+        Long id = 1L;
+        Loan loan = createLoan();
+        loan.setId(id);
+
+        when(repository.findById(id)).thenReturn(Optional.of(loan));
+        Optional<Loan> result = service.getById(id);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(id);
+        assertThat(result.get().getBook()).isEqualTo(loan.getBook());
+        assertThat(result.get().getCustomer()).isEqualTo(loan.getCustomer());
+        assertThat(result.get().getLoanDate()).isEqualTo(loan.getLoanDate());
+        verify(repository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar um empréstimo.")
+    void updateLoanTest() {
+        Loan loan = createLoan();
+        loan.setId(1L);
+        loan.setReturned(true);
+
+        when(repository.save(loan)).thenReturn(loan);
+        Loan updatedLoan = service.update(loan);
+
+        assertThat(updatedLoan.getReturned()).isTrue();
+        verify(repository).save(loan);
+    }
+
+    public Loan createLoan() {
+        Book book = Book.builder()
+                .id(1L)
+                .build();
+        return Loan.builder()
+                .book(book)
+                .customer("Fulano")
+                .loanDate(LocalDate.now())
+                .build();
     }
 }
