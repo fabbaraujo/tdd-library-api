@@ -5,6 +5,7 @@ import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.service.BookService;
+import com.github.fabbaraujo.libraryapi.service.LoanService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,9 @@ class BookControllerTest {
 
     @MockBean
     BookService service;
+
+    @MockBean
+    private LoanService loanService;
 
     @Test
     @DisplayName("Deve criar um livro com sucesso.")

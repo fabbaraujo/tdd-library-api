@@ -14,5 +14,6 @@ public class LoanResponse {
     private Long id;
     private String isbn;
     private String customer;
+    private String customerEmail;
     private BookResponse book;
 }

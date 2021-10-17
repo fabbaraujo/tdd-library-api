@@ -7,6 +7,7 @@ import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import com.github.fabbaraujo.libraryapi.service.LoanService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,17 +21,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
+@RequiredArgsConstructor
 public class BookController {
 
     private final BookService service;
     private final LoanService loanService;
     private final ModelMapper mapper;
-
-    public BookController(BookService service, ModelMapper mapper, LoanService loanService) {
-        this.service = service;
-        this.mapper = mapper;
-        this.loanService = loanService;
-    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

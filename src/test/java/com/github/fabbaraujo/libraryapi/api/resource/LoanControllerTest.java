@@ -59,6 +59,7 @@ class LoanControllerTest {
         LoanRequest requestBody = LoanRequest.builder()
                 .isbn("123")
                 .customer("Fulano")
+                .customerEmail("customer@email.com")
                 .build();
         String json = new ObjectMapper().writeValueAsString(requestBody);
         Book book = Book.builder()
