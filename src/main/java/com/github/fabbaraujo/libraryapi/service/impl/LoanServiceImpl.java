@@ -2,6 +2,7 @@ package com.github.fabbaraujo.libraryapi.service.impl;
 
 import com.github.fabbaraujo.libraryapi.api.request.LoanFilterRequest;
 import com.github.fabbaraujo.libraryapi.exception.BusinessException;
+import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.model.repository.LoanRepository;
 import com.github.fabbaraujo.libraryapi.service.LoanService;
@@ -40,5 +41,10 @@ public class LoanServiceImpl implements LoanService {
     @Override
     public Page<Loan> find(LoanFilterRequest filterRequest, Pageable pageable) {
         return repository.findByBookIsbnOrCustomer(filterRequest.getIsbn(), filterRequest.getCustomer(), pageable);
+    }
+
+    @Override
+    public Page<Loan> getLoansByBook(Book book, Pageable pageable) {
+        return repository.findByBook(book, pageable);
     }
 }

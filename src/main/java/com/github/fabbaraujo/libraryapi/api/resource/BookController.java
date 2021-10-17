@@ -2,8 +2,11 @@ package com.github.fabbaraujo.libraryapi.api.resource;
 
 import com.github.fabbaraujo.libraryapi.api.request.BookRequest;
 import com.github.fabbaraujo.libraryapi.api.response.BookResponse;
+import com.github.fabbaraujo.libraryapi.api.response.LoanResponse;
 import com.github.fabbaraujo.libraryapi.model.entity.Book;
+import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
+import com.github.fabbaraujo.libraryapi.service.LoanService;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -20,11 +23,13 @@ import java.util.List;
 public class BookController {
 
     private final BookService service;
+    private final LoanService loanService;
     private final ModelMapper mapper;
 
-    public BookController(BookService service, ModelMapper mapper) {
+    public BookController(BookService service, ModelMapper mapper, LoanService loanService) {
         this.service = service;
         this.mapper = mapper;
+        this.loanService = loanService;
     }
 
     @PostMapping
@@ -78,5 +83,25 @@ public class BookController {
                 .map(entity -> mapper.map(entity, BookResponse.class)).toList();
 
         return new PageImpl<>(list, pageRequest, result.getTotalElements());
+    }
+
+    @GetMapping("/{id}/loans")
+    public Page<LoanResponse> loansByBook(@PathVariable Long id, Pageable pageable) {
+        Book book = service
+                .getById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        Page<Loan> result = loanService.getLoansByBook(book, pageable);
+        List<LoanResponse> listResponse = result.getContent()
+                .stream()
+                .map(loan -> {
+                    Book loanBook = loan.getBook();
+                    BookResponse bookResponse = mapper.map(loanBook, BookResponse.class);
+                    LoanResponse loanResponse = mapper.map(loan, LoanResponse.class);
+                    loanResponse.setBook(bookResponse);
+                    return loanResponse;
+                }).toList();
+
+        return new PageImpl<LoanResponse>(listResponse, pageable, result.getTotalElements());
     }
 }
