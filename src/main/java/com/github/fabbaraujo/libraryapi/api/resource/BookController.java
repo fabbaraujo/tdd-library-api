@@ -7,6 +7,10 @@ import com.github.fabbaraujo.libraryapi.model.entity.Book;
 import com.github.fabbaraujo.libraryapi.model.entity.Loan;
 import com.github.fabbaraujo.libraryapi.service.BookService;
 import com.github.fabbaraujo.libraryapi.service.LoanService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
+@Api("Book Api")
 public class BookController {
 
     private final BookService service;
@@ -30,6 +35,7 @@ public class BookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("Creates a book")
     public BookRequest create(@RequestBody @Valid BookRequest request) {
         Book entity = mapper.map(request, Book.class);
 
@@ -39,6 +45,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
+    @ApiOperation("Obtains a book details by id")
     public BookResponse getBookById(@PathVariable Long id) {
         return service
                 .getById(id)
@@ -48,6 +55,10 @@ public class BookController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiOperation("Deletes a book by id")
+    @ApiResponses({
+            @ApiResponse(code = 204, message = "Book succesfully deleted")
+    })
     public void delete(@PathVariable Long id) {
         Book book = service
                 .getById(id)
@@ -57,6 +68,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
+    @ApiOperation("Updates a book")
     public BookResponse update(@PathVariable Long id, BookRequest request) {
 
         return service
@@ -71,6 +83,7 @@ public class BookController {
     }
 
     @GetMapping
+    @ApiOperation("Find books by params")
     public Page<BookResponse> find(BookRequest request, Pageable pageRequest) {
         Book filter = mapper.map(request, Book.class);
         Page<Book> result = service.find(filter, pageRequest);
